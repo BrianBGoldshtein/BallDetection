@@ -325,7 +325,7 @@ public class DisplayWindow extends PApplet {
         }
 
         if (frame != null && (filter instanceof Interactive)) {
-            ((Interactive) filter).keyPressed(key);
+            ((Interactive) filter).keyPressed(key, keyCode);
         }
     }
 
@@ -342,7 +342,7 @@ public class DisplayWindow extends PApplet {
     private PixelFilter loadNewFilter(String name) {
         PixelFilter f = null;
         try {
-            Class c = Class.forName("Filters." + name.toString());
+            Class c = Class.forName("FiltersHere." + name.toString());
             f = (PixelFilter) c.newInstance();
         } catch (Exception e) {
             System.err.println("Something went wrong when instantiating your class!  (running its constructor). " +
@@ -355,7 +355,7 @@ public class DisplayWindow extends PApplet {
 
     private PixelFilter selectNewFilterDialog() {
         String userDirLocation = System.getProperty("user.dir");
-        File userDir = new File(userDirLocation + "/src/Filters");
+        File userDir = new File(userDirLocation + "/src/FiltersHere");
 
         String[] filters = new String[Objects.requireNonNull(userDir.list()).length];
         for (int i = 0; i < filters.length; i++) {

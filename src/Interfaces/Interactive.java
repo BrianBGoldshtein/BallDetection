@@ -15,5 +15,5 @@ public interface Interactive {
      * @param img the image unfiltered original image that was clicked.
      */
     public void mouseClicked(int mouseX, int mouseY, DImage img);
-    public void keyPressed(char key);
+    public void keyPressed(char key, int keyCode);
 }
