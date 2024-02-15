@@ -7,6 +7,10 @@ import Interfaces.PixelFilter;
 import core.DImage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import static processing.core.PConstants.DOWN;
+import static processing.core.PConstants.UP;
 
 public class Main implements PixelFilter, Interactive {
 
@@ -24,6 +28,9 @@ public class Main implements PixelFilter, Interactive {
 
     ColorMasking colorMasker;
     Saturate saturator;
+    ColorReduction fourColors;
+    Isolate isolator;
+
 
     ArrayList ballCenterRows = new ArrayList<>();
 
@@ -38,9 +45,11 @@ public class Main implements PixelFilter, Interactive {
         });
 
 
-        colorReducer = new ColorReduction(6);
+        colorReducer = new ColorReduction(50);
         colorMasker = new ColorMasking();
-        saturator = new Saturate();
+        saturator = new Saturate(.2);
+        //fourColors = new ColorReduction(4);
+        //isolator = new Isolate(-.1);
 
 //        ballCenterRows = calculateBallCenterRows(colorMasker);
     }
@@ -51,16 +60,21 @@ public class Main implements PixelFilter, Interactive {
 
     @Override
     public DImage processImage(DImage img) {
-
             img = blur.processImage(img);
-        img = saturator.processImage(img);
-        if(!mask) return img;
 
+        //saturator.setX(.3);
+        //img = saturator.processImage(img);
 
         img = colorReducer.processImage(img);
         reducedImage = img;
-        updateColors();
-        img = saturator.processImage(img);
+        img = blur.processImage(img);
+        img = colorReducer.processImage(img);
+
+
+        if(!mask) return img;
+       // img = isolator.processImage(img);
+
+       img = saturator.processImage(img);
 
 
 
@@ -68,13 +82,13 @@ public class Main implements PixelFilter, Interactive {
         return img;
     }
 
-    private void updateColors() {
-        red = getColor(colorReducer.findClosestCluster((short) 255, (short) 0, (short) 0));
-        green = getColor(colorReducer.findClosestCluster((short)0, (short)255, (short)0));
-        blue = getColor(colorReducer.findClosestCluster((short)0, (short)0, (short)255));
-        yellow = getColor(colorReducer.findClosestCluster((short)255, (short)255, (short)0));
-        colors = new short[][]{red, green, blue, yellow};
-    }
+//    private void updateColors() {
+//        red = getColor(colorReducer.findClosestCluster((short) 255, (short) 0, (short) 0));
+//        green = getColor(colorReducer.findClosestCluster((short)0, (short)255, (short)0));
+//        blue = getColor(colorReducer.findClosestCluster((short)0, (short)0, (short)255));
+//        yellow = getColor(colorReducer.findClosestCluster((short)255, (short)255, (short)0));
+//        colors = new short[][]{red, green, blue, yellow};
+//    }
 
     DImage reducedImage;
 
@@ -94,7 +108,21 @@ public class Main implements PixelFilter, Interactive {
 
     @Override
     public void keyPressed(char key, int keyCode) {
-        if(key == ' ') mask = !mask;
+        if(key == ' ') {
+            mask = !mask;
+            System.out.println("space");
+        }
+
+        if(key == 'R') {red = getColor(colorReducer.findClosestCluster((short) 255, (short) 0, (short) 0));}
+        if(key == 'g') {green = getColor(colorReducer.findClosestCluster((short) 0, (short) 255, (short) 0));
+            System.out.println(Arrays.toString(green));}
+        if(key == 'B') blue = getColor(colorReducer.findClosestCluster((short) 0, (short) 0, (short) 255));
+        if(key == 'Y') yellow = getColor(colorReducer.findClosestCluster((short) 255, (short) 255, (short) 0));
+
+
+        if(keyCode == UP) colorReducer.increaseClusters();
+        if(keyCode == DOWN) colorReducer.decreaseClusters();
+
         colorReducer.keyPressed(key,keyCode);
     }
 }
